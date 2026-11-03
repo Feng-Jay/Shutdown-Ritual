@@ -19,11 +19,21 @@ When available, use `request_user_input_async` or an equivalent structured quest
 
 Offer a few suggested answers when they help the user make a choice, using their known tasks and constraints. Keep free-text answers available. For task descriptions or time estimates, omit suggested answers when none are grounded in the conversation. Put the question in the card only; use chat for a brief reflection or explanation. If no question tool is available, ask the same single question in chat.
 
+### Before the first question: review today's chats
+
+When chat-history tools are available, review accessible Codex conversations for the user's current local day before asking about completed work. Use the user's date and timezone; do not substitute the execution host's timezone.
+
+- Use `list_threads` or an equivalent to find recent active and archived chats. Titles, summaries, and modification times are leads, not evidence of completion. Read relevant messages with `read_thread`, using short pages and `includeOutputs: false` where supported. Check message or turn timestamps for work occurring today; an older chat archived or renamed today does not establish work done today. Include completion times for work that started before midnight and finished today; label overnight items when useful so the user can decide whether to count them. Paginate when needed to reach today's messages, then stop at the day boundary.
+- Extract a short list of distinct, substantive candidate accomplishments from user messages and relevant final answers. Keep the source chat and today's supporting message available for verification. Merge related discussions and omit empty ritual tests. Preserve the observed outcome: discussing a fix is "investigated," planning is "outlined," and an unfinished implementation stays unfinished. Every suggestion still needs the user's confirmation.
+- Keep retrieval compact: return relevant excerpts or outcome notes rather than entire chat payloads, command logs, or older unrelated turns. Say briefly if the available history covers only part of the day. If history is unavailable or yields no useful candidates, proceed with the ordinary free-text opening question.
+
+Use these candidates as choices in the first "What did you get done today?" card. Allow corrections and additions. If the card supports multiple selection, enable it; if it supports only one choice, explicitly let the user type several candidate numbers or names in the free-text answer. Keep this as one question about completed work, then wait. Suggestions do not count as confirmed answers and do not permit advancing the ritual automatically.
+
 ### Sequence
 
-Track the current stage and known answers in the conversation. Advance after the user answers, explicitly skips, or has already supplied the answer during this ritual. Use additional activity sources only when requested. A task completed in this chat does not substitute for asking about the user's whole day.
+Track the current stage and known answers in the conversation. Advance after the user answers, explicitly skips, or has already supplied the answer during this ritual. Today's accessible chat history is the default input for opening suggestions; use other activity sources only when requested. A task completed in this chat does not substitute for asking about the user's whole day.
 
-1. **Completed today.** On a fresh start, ask only: "What did you get done today?" Wait for the answer before discussing unfinished work.
+1. **Completed today.** After the history review, ask only about completed work, offering grounded candidates when available. Wait for the user's confirmation, corrections, or additions before discussing unfinished work.
 2. **Left unfinished.** Ask only: "What work is still unfinished?" Capture the loose ends, then wait before planning.
 3. **Tomorrow.** First ask what they want to prioritize tomorrow. After their reply, clarify one selected task's finish line. In a later turn, ask for its time estimate. Follow up on a specific uncertainty only when needed; confirm a proposed revision before treating it as agreed. Repeat for other selected tasks. Ask about tomorrow's available work time separately if unknown.
 4. **Tonight.** First ask about available evening time if unknown. Ask about energy, activity choice, and activity duration in separate later turns as needed. Rest is a valid choice. Keep deliberate unplanned time. If the plan is crowded, ask the user to choose a deferral, scope reduction, or revised estimate.
