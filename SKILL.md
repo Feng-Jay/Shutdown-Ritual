@@ -59,17 +59,30 @@ Sum lower and upper task estimates separately and add explicit buffer once. Comp
 
 ## Final recap
 
-Show today's progress, tomorrow's tasks and first step, tonight's choices, and deferrals. For each period, show task durations, total range, buffer or protected free time, available time, and remaining capacity. Keep uncertain estimates visible. End with a closure phrase and stop prompting for more work.
+Present the final recap as **formatted Markdown tables**, followed by one short closure sentence. Use confirmed answers; draft checkbox selections are not confirmed work. The tables are the output, rather than paragraphs or a bullet list repeating their contents.
 
-Example with all inputs already supplied:
+- **Work and activities table:** columns for period, task or result, status or next step, and time estimate. Include today's completed and unfinished work, tomorrow's selected tasks and first step, tonight's choices, and deferrals. Mark missing estimates as "Unknown" and past durations that were not recorded as "Not recorded." Keep uncertain ranges and external waiting time visible.
+- **Time budget table:** one row each for tomorrow and tonight, with task total, buffer or protected free time, planned total versus available time, and spare time or overflow. Exclude deferred tasks from planned totals. Calculate both range endpoints and include buffer once.
 
-> Closed today: report draft.
->
-> Tomorrow: revise 40–60 min; send 10 min. Tasks 50–70 + buffer 20 = **70–90 of 120 min**; spare 30–50. Defer the numbers check. First step: open the draft and mark revisions.
->
-> Tonight: walk 20 min; read 15–25 min. Activities 35–45 + protected free time 15 = **50–60 of 60 min**; spare 0–10.
->
-> Shutdown complete. Your evening is yours.
+Example with all inputs already supplied and confirmed:
+
+| Period | Task or result | Status / next step | Time estimate |
+|---|---|---|---|
+| Today | Report draft | Completed | Not recorded |
+| Today | Check numbers | Unfinished; deferred | 20–40 min |
+| Tomorrow | Revise draft | First step: open draft and mark revisions | 40–60 min |
+| Tomorrow | Send report | After revision | 10 min |
+| Tonight | Walk | Chosen | 20 min |
+| Tonight | Read | Chosen; duration uncertain | 15–25 min |
+
+| Period | Task total | Buffer / free time | Planned / available | Spare |
+|---|---|---|---|---|
+| Tomorrow | 50–70 min | 20 min buffer | 70–90 / 120 min | 30–50 min |
+| Tonight | 35–45 min | 15 min protected free time | 50–60 / 60 min | 0–10 min |
+
+Shutdown complete. Your evening is yours.
+
+After the recap, stop prompting for more work.
 
 Keep the plan in chat; saving it or acting in other apps requires a request.
 

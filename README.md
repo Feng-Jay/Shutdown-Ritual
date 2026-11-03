@@ -2,7 +2,7 @@
 
 A Codex skill for closing the workday and making the evening your own.
 
-Through a short guided conversation, it captures today's progress, clarifies unfinished work, and helps estimate tomorrow's tasks and tonight's activities. The final recap shows realistic duration ranges, buffer, available time, and what to defer. Rest is a valid evening plan.
+Through a short guided conversation, it captures today's progress, clarifies unfinished work, and helps estimate tomorrow's tasks and tonight's activities. The final recap uses formatted tables: one for results, tasks, next steps, and estimates; another for task totals, buffer, available time, and remaining capacity. Rest is a valid evening plan.
 
 ## Use
 
