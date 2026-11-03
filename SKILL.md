@@ -15,7 +15,7 @@ Be direct, warm, and curious. Reuse answers already given and aim for roughly fi
 
 Each turn contains a brief reflection when useful and **exactly one current question**, or the final recap. A question requests one answer about one topic. Keep future stages internal; do not display a questionnaire or combine completed work, unfinished work, priorities, and estimates in one prompt.
 
-When available, use `request_user_input_async` or an equivalent structured question tool. Make one call containing exactly one question item, then end the turn. Wait for the user's actual reply before asking the next question. An asynchronous tool's acceptance is not an answer. While a card is unanswered, keep it pending rather than issuing another card or advancing stages.
+For free-text questions and mutually exclusive choices, use `request_user_input_async` or an equivalent structured question tool when available. Make one call containing exactly one question item, then end the turn. Wait for the user's actual reply before asking the next question. An asynchronous tool's acceptance is not an answer. While a question is unanswered, keep it pending rather than issuing another question or advancing stages.
 
 Offer a few suggested answers when they help the user make a choice, using their known tasks and constraints. Keep free-text answers available. For task descriptions or time estimates, omit suggested answers when none are grounded in the conversation. Put the question in the card only; use chat for a brief reflection or explanation. If no question tool is available, ask the same single question in chat.
 
@@ -27,7 +27,17 @@ When chat-history tools are available, review accessible Codex conversations for
 - Extract a short list of distinct, substantive candidate accomplishments from user messages and relevant final answers. Keep the source chat and today's supporting message available for verification. Merge related discussions and omit empty ritual tests. Preserve the observed outcome: discussing a fix is "investigated," planning is "outlined," and an unfinished implementation stays unfinished. Every suggestion still needs the user's confirmation.
 - Keep retrieval compact: return relevant excerpts or outcome notes rather than entire chat payloads, command logs, or older unrelated turns. Say briefly if the available history covers only part of the day. If history is unavailable or yields no useful candidates, proceed with the ordinary free-text opening question.
 
-Use these candidates as choices in the first "What did you get done today?" card. Allow corrections and additions. If the card supports multiple selection, enable it; if it supports only one choice, explicitly let the user type several candidate numbers or names in the free-text answer. Keep this as one question about completed work, then wait. Suggestions do not count as confirmed answers and do not permit advancing the ritual automatically.
+Use these candidates in the first "What did you get done today?" question. Completed items are independent: the user must be able to select several directly, using checkboxes or a native multi-select. Allow corrections and additions. Keep this as one question about completed work, then wait. Suggestions do not count as confirmed answers and do not permit advancing the ritual automatically.
+
+### Multiple selection
+
+Use a native multi-select only when its actual tool schema supports it. The single-choice `request_user_input_async` schema has no multi-select parameter; do not invent one or ask the user to type candidate numbers as the standard interaction.
+
+When inline interactive rendering is available, use [assets/accomplishments.html](assets/accomplishments.html) for the opening question. Follow the environment's rendering guidance, such as the visualize skill when available. Copy the fragment to the task's visualization location and populate only its `shutdown-accomplishments-data` JSON with the current local `date`, `timeZone`, and verified `items` (`id`, `label`). Give items unique IDs and serialize JSON safely, escaping `<` as `\u003c`. The template renders labels as text, permits several checkboxes, accepts additions, and offers "None of these."
+
+Selection changes are drafts. Only **Continue** submits all choices and additions to chat with `window.openai.sendFollowUpMessage`; do not advance based on saved display state. Wait for that explicit submitted answer before asking about unfinished work. If the form cannot submit, retain the selections and acknowledge the limitation instead of treating them as confirmed.
+
+If neither native multi-select nor interactive rendering is available, briefly explain the limitation and confirm candidates one by one with yes/no questions, collecting multiple accepted items across turns. Keep the remaining ritual one question at a time.
 
 ### Sequence
 

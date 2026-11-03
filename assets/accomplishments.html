@@ -1,0 +1,154 @@
+<div id="shutdown-accomplishments">
+  <style>
+    #shutdown-accomplishments { display: grid; gap: calc(var(--font-size-base) * 1); }
+    #shutdown-accomplishments .shutdown-heading { display: grid; gap: calc(var(--font-size-base) * .25); padding-inline-end: 90px; }
+    #shutdown-accomplishments form, #shutdown-accomplishments .shutdown-choices, #shutdown-accomplishments .shutdown-additions { display: grid; gap: calc(var(--font-size-base) * .75); min-width: 0; }
+    #shutdown-accomplishments .shutdown-choices { overflow-wrap: anywhere; }
+    #shutdown-accomplishments .shutdown-note { white-space: pre-wrap; overflow-wrap: anywhere; }
+  </style>
+  <div class="shutdown-heading">
+    <h3 id="shutdown-accomplishments-title">What did you get done today?</h3>
+    <span class="text-small text-muted" id="shutdown-accomplishments-date"></span>
+  </div>
+  <form aria-labelledby="shutdown-accomplishments-title">
+    <div class="text-small text-muted" id="shutdown-selection-help">Select all that apply.</div>
+    <div class="shutdown-choices" id="shutdown-accomplishments-choices" role="group" aria-labelledby="shutdown-accomplishments-title" aria-describedby="shutdown-selection-help"></div>
+    <label class="form-check">
+      <input class="form-check-input" id="shutdown-accomplishments-none" type="checkbox">
+      <span class="form-check-label">None of these</span>
+    </label>
+    <div class="shutdown-additions">
+      <label class="form-label" for="shutdown-accomplishments-additions">Add or correct anything</label>
+      <textarea class="form-control" id="shutdown-accomplishments-additions" rows="2" maxlength="2000"></textarea>
+    </div>
+    <div class="viz-row">
+      <button class="btn btn-primary" type="submit" disabled>Continue</button>
+      <span class="text-small text-muted" id="shutdown-accomplishments-status" aria-live="polite">0 selected</span>
+    </div>
+    <p class="text-destructive shutdown-note" id="shutdown-accomplishments-error" role="alert" hidden></p>
+  </form>
+  <script type="application/json" id="shutdown-accomplishments-data">{"date":"","timeZone":"","items":[]}</script>
+  <script>
+    (() => {
+      const root = document.getElementById('shutdown-accomplishments');
+      const data = JSON.parse(root.querySelector('#shutdown-accomplishments-data').textContent);
+      const items = Array.isArray(data.items) ? data.items.filter(item => typeof item.id === 'string' && typeof item.label === 'string') : [];
+      const scope = JSON.stringify([data.date, data.timeZone, items]);
+      const choices = root.querySelector('#shutdown-accomplishments-choices');
+      const noneInput = root.querySelector('#shutdown-accomplishments-none');
+      const additions = root.querySelector('#shutdown-accomplishments-additions');
+      const button = root.querySelector('button');
+      const status = root.querySelector('#shutdown-accomplishments-status');
+      const error = root.querySelector('#shutdown-accomplishments-error');
+      const inputs = new Map();
+      let selected = new Set();
+      let none = false;
+      let note = '';
+      let submitted = false;
+      let busy = false;
+      root.querySelector('#shutdown-accomplishments-date').textContent = [data.date, data.timeZone].filter(Boolean).join(' · ');
+
+      function restore(snapshot) {
+        const saved = snapshot && snapshot.privateContent;
+        if (!saved || saved.scope !== scope) return;
+        selected = new Set((Array.isArray(saved.selectedIds) ? saved.selectedIds : []).filter(id => items.some(item => item.id === id)));
+        none = saved.none === true;
+        if (none) selected.clear();
+        note = typeof saved.note === 'string' ? saved.note.slice(0, 2000) : '';
+        submitted = saved.submitted === true;
+      }
+
+      function save() {
+        if (typeof window.openai?.setWidgetState !== 'function') return;
+        const state = {
+          modelContent: { stage: 'completed_today', date: data.date, selected: items.filter(item => selected.has(item.id)), additions: note, noneOfThese: none, confirmed: submitted },
+          privateContent: { scope, selectedIds: [...selected], none, note, submitted }
+        };
+        try { window.openai.setWidgetState(state).catch(() => {}); } catch (_) {}
+      }
+
+      function update() {
+        for (const [id, input] of inputs) {
+          input.checked = selected.has(id);
+          input.disabled = busy || submitted;
+        }
+        noneInput.checked = none;
+        noneInput.disabled = busy || submitted;
+        additions.disabled = busy || submitted;
+        if (additions.value !== note) additions.value = note;
+        button.disabled = busy || submitted || !(selected.size || none || note.trim());
+        button.textContent = busy ? 'Sending…' : submitted ? 'Sent' : 'Continue';
+        status.textContent = submitted ? 'Confirmed' : none ? 'None of these selected' : `${selected.size} selected`;
+      }
+
+      for (const item of items) {
+        const label = document.createElement('label');
+        label.className = 'form-check';
+        const input = document.createElement('input');
+        input.type = 'checkbox';
+        input.className = 'form-check-input';
+        const text = document.createElement('span');
+        text.className = 'form-check-label';
+        text.textContent = item.label;
+        label.append(input, text);
+        choices.append(label);
+        inputs.set(item.id, input);
+        input.addEventListener('change', () => {
+          if (input.checked) { selected.add(item.id); none = false; }
+          else selected.delete(item.id);
+          error.hidden = true;
+          update();
+          save();
+        });
+      }
+      noneInput.addEventListener('change', () => {
+        none = noneInput.checked;
+        if (none) selected.clear();
+        error.hidden = true;
+        update();
+        save();
+      });
+      additions.addEventListener('input', () => {
+        note = additions.value;
+        error.hidden = true;
+        update();
+        save();
+      });
+      root.querySelector('form').addEventListener('submit', async event => {
+        event.preventDefault();
+        if (button.disabled || busy || submitted) return;
+        busy = true;
+        error.hidden = true;
+        update();
+        const selectedItems = items.filter(item => selected.has(item.id));
+        const prompt = [
+          `My Shutdown Ritual answer — completed today (${data.date || 'today'}):`,
+          ...selectedItems.map(item => `- ${item.label}`),
+          none ? 'None of the suggested items should count as completed.' : '',
+          note.trim() ? `My additions or corrections: ${note.trim()}` : '',
+          'Only the selected items and my additions are confirmed; unselected items remain unconfirmed.',
+          'Continue to unfinished work with one question, then wait for my answer.'
+        ].filter(Boolean).join('\n');
+        try {
+          if (typeof window.openai?.sendFollowUpMessage !== 'function') throw new Error('Chat bridge unavailable');
+          await window.openai.sendFollowUpMessage({ prompt, title: 'Confirm completed work' });
+          submitted = true;
+          save();
+        } catch (_) {
+          error.textContent = 'Your selection could not be sent to chat. Your choices are preserved; you can try again.';
+          error.hidden = false;
+        } finally {
+          busy = false;
+          update();
+        }
+      });
+      restore(window.openai?.widgetState);
+      update();
+      window.addEventListener('openai:set_globals', event => {
+        if (busy || submitted || !event.detail?.globals?.widgetState) return;
+        restore(event.detail.globals.widgetState);
+        update();
+      });
+    })();
+  </script>
+</div>

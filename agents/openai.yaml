@@ -1,4 +1,4 @@
 interface:
   display_name: "Shutdown Ritual"
   short_description: "Review today's chats and close work step by step"
-  default_prompt: "Use $shutdown-ritual. First review today's chats and offer possible accomplishments for me to confirm in one question card. Wait for my answer before moving to unfinished work, tomorrow's plan, and tonight's plan, one question at a time."
+  default_prompt: "Use $shutdown-ritual. Review today's chats and let me select several completed items with checkboxes, then wait for me to submit. Continue to unfinished work, tomorrow's plan, and tonight's plan, one question at a time."

@@ -12,7 +12,9 @@ Once installed, invoke the skill in a new chat:
 Use $shutdown-ritual to help me close my workday.
 ```
 
-The ritual first reviews today's accessible chats and suggests possible accomplishments in the "What did you get done today?" card. You confirm, correct, or add items; on single-choice cards, you can type several item numbers in your own answer. Chat suggestions remain unconfirmed until you respond. Without history access, the opening question accepts your own notes.
+The ritual first reviews today's accessible chats and suggests possible accomplishments in "What did you get done today?" Select several with checkboxes, add or correct anything, and press **Continue** to submit the selection together. Suggestions remain unconfirmed until you submit. Without history access, the opening question accepts your own notes.
+
+The included checkbox chooser supports the inline conversation display. If native multi-select and inline rendering are both unavailable, the skill confirms candidate items individually.
 
 It then moves through unfinished work, tomorrow's plan, and tonight's plan. It asks exactly one question per turn and waits for each answer, including separate questions for task scope and time estimates. Environments without question cards use chat.
 
@@ -26,6 +28,7 @@ If you already have this skill installed, review your existing copy before repla
 
 - [SKILL.md](SKILL.md) contains the skill instructions.
 - [agents/openai.yaml](agents/openai.yaml) contains the display name and invocation prompt.
+- [assets/accomplishments.html](assets/accomplishments.html) provides the multiple-selection question.
 
 ## Inspiration
 
