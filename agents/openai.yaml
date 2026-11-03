@@ -1,4 +1,4 @@
 interface:
   display_name: "Shutdown Ritual"
   short_description: "Question cards to close work and budget your time"
-  default_prompt: "Use $shutdown-ritual to guide me through interactive question cards, close today, estimate tomorrow's tasks, and choose a realistic plan for tonight."
+  default_prompt: "Use $shutdown-ritual one question card at a time. First ask what I got done today and wait for my answer before moving to unfinished work, tomorrow's plan, and tonight's plan."
