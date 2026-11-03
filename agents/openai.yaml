@@ -1,0 +1,4 @@
+interface:
+  display_name: "Shutdown Ritual"
+  short_description: "Close work and make a realistic time budget"
+  default_prompt: "Use $shutdown-ritual to help me close today, estimate tomorrow's tasks, and choose a realistic plan for tonight."
