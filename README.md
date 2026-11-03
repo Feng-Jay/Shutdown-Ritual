@@ -1,5 +1,10 @@
 # 🌙 Shutdown Ritual
 
+> [!NOTE]
+> Inspired by **Cal Newport's [*Deep Work: Rules for Focused Success in a Distracted World*](https://calnewport.com/the-book-facebook-doesnt-want-you-to-read/) (2016)** and its **shutdown ritual**: record unfinished work, decide what happens next, and close the workday.
+>
+> This skill adds collaborative time estimates and evening planning. [Read Newport's explanation of the ritual.](https://calnewport.com/drastically-reduce-stress-with-a-work-shutdown-ritual/)
+
 A gentle Codex skill for closing the workday and making the evening your own, with a few friendly emojis along the way.
 
 Through a short guided conversation, it captures today's progress, clarifies unfinished work, and helps estimate tomorrow's tasks and tonight's activities. The final recap uses formatted tables: one for results, tasks, next steps, and estimates; another for task totals, buffer, available time, and remaining capacity. Rest is a valid evening plan.
@@ -29,7 +34,3 @@ If you already have this skill installed, review your existing copy before repla
 - [SKILL.md](SKILL.md) contains the skill instructions.
 - [agents/openai.yaml](agents/openai.yaml) contains the display name and invocation prompt.
 - [assets/accomplishments.html](assets/accomplishments.html) provides the multiple-selection question.
-
-## Inspiration
-
-Inspired by [Cal Newport's shutdown ritual](https://calnewport.com/drastically-reduce-stress-with-a-work-shutdown-ritual/), with collaborative time estimation and evening planning.
