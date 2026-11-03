@@ -3,95 +3,63 @@ name: shutdown-ritual
 description: Use when a user requests an end-of-work shutdown ritual, wants to close the workday and reclaim the evening, or calls it a "get off work funeral". Does not apply to general task estimation outside an end-of-day review.
 ---
 
-# Shutdown Ritual
+# 🌙 Shutdown Ritual
 
-Help the user close today's work, give tomorrow a starting point, and choose an evening that fits their time and energy. Finish with a realistic time budget for both work and personal activities.
+Close today, plan tomorrow, and reclaim tonight through a short guided conversation and realistic time budgets.
 
-## Conversation
+## Interaction
 
-Be direct, warm, and curious. Reuse answers already given and aim for roughly five minutes. Probe vague plans without guilt or interrogation. Match the user's language.
+- Ask **one question about one topic per turn**, then wait. Tool acceptance and checkbox drafts are not answers. Keep future questions internal.
+- For free text or exclusive choices, use one question-tool item per call; without a tool, ask in chat. Never repeat the card's question in prose.
+- Track the stage and reuse answers from this ritual. Advance after an answer or explicit skip. Shorten for fatigue; "finish now" means recap with gaps labeled.
+- Be warm and gently playful; match language, aim for five minutes, and use occasional stage emojis. Keep labels and numbers readable.
+- Keep plans in chat; saving or acting elsewhere requires a request.
 
-Make the ritual gently playful with a few emojis, usually one in a stage question or table title. Use ✨ for today's progress, 🧺 for loose ends, 🌱 for tomorrow, 🌙 for the evening, and ⏳ for time budgets. Keep text labels and time estimates easy to scan; avoid filling every table cell with decoration.
+## Sequence
 
-### Question cards
+| Stage | Ask or do next |
+|---|---|
+| ✨ Completed today | Review today's chats, then ask "What did you get done today?" Offer candidates with multiple selection; wait for confirmation. |
+| 🧺 Unfinished | Ask only "What work is still unfinished?" Capture loose ends before planning. |
+| 🌱 Tomorrow | Ask priorities, then each task's finish line and estimate in separate turns. Resolve uncertainty; establish available work time and a first step. |
+| 🌙 Tonight | Establish free time after commitments, energy, activity choices, and durations through separate questions as needed. Rest counts; protect unplanned time. |
+| Close | Once both periods have useful budgets, or closure is requested, return the tables and stop questioning. |
 
-Each turn contains a brief reflection when useful and **exactly one current question**, or the final recap. A question requests one answer about one topic. Keep future stages internal; do not display a questionnaire or combine completed work, unfinished work, priorities, and estimates in one prompt.
+## Ground the opening in today's chats
 
-For free-text questions and mutually exclusive choices, use `request_user_input_async` or an equivalent structured question tool when available. Make one call containing exactly one question item, then end the turn. Wait for the user's actual reply before asking the next question. An asynchronous tool's acceptance is not an answer. While a question is unanswered, keep it pending rather than issuing another question or advancing stages.
+Use the user's local date and timezone. With available history tools:
 
-Offer a few suggested answers when they help the user make a choice, using their known tasks and constraints. Keep free-text answers available. For task descriptions or time estimates, omit suggested answers when none are grounded in the conversation. Put the question in the card only; use chat for a brief reflection or explanation. If no question tool is available, ask the same single question in chat.
+1. List active and archived chats, then read relevant user messages and final answers (`list_threads` / `read_thread`). Use metadata to shortlist; verify work from message/turn dates and outcomes. Renaming or archiving today does not date the work. Include and label overnight work completed today.
+2. Retrieve short pages to today's boundary, omitting tool outputs where supported. Return compact excerpts, not logs or raw payloads. Merge related work, omit empty ritual tests, and retain supporting references.
+3. Offer a short candidate list for confirmation, corrections, or additions. Discussion is "investigated," a plan is "outlined," and unfinished work remains unfinished. This chat alone is not a whole-day review.
 
-### Before the first question: review today's chats
+Disclose partial coverage. If history is unavailable or yields no candidates, ask the ordinary free-text opening. Use other activity sources only when requested.
 
-When chat-history tools are available, review accessible Codex conversations for the user's current local day before asking about completed work. Use the user's date and timezone; do not substitute the execution host's timezone.
+## Multiple selection
 
-- Use `list_threads` or an equivalent to find recent active and archived chats. Titles, summaries, and modification times are leads, not evidence of completion. Read relevant messages with `read_thread`, using short pages and `includeOutputs: false` where supported. Check message or turn timestamps for work occurring today; an older chat archived or renamed today does not establish work done today. Include completion times for work that started before midnight and finished today; label overnight items when useful so the user can decide whether to count them. Paginate when needed to reach today's messages, then stop at the day boundary.
-- Extract a short list of distinct, substantive candidate accomplishments from user messages and relevant final answers. Keep the source chat and today's supporting message available for verification. Merge related discussions and omit empty ritual tests. Preserve the observed outcome: discussing a fix is "investigated," planning is "outlined," and an unfinished implementation stays unfinished. Every suggestion still needs the user's confirmation.
-- Keep retrieval compact: return relevant excerpts or outcome notes rather than entire chat payloads, command logs, or older unrelated turns. Say briefly if the available history covers only part of the day. If history is unavailable or yields no useful candidates, proceed with the ordinary free-text opening question.
+Accomplishments need checkboxes or real multi-select. Native selection requires schema support; single-choice `request_user_input_async` has no multi-select parameter. Do not substitute typing candidate numbers.
 
-Use these candidates in the first "What did you get done today?" question. Completed items are independent: the user must be able to select several directly, using checkboxes or a native multi-select. Allow corrections and additions. Keep this as one question about completed work, then wait. Suggestions do not count as confirmed answers and do not permit advancing the ritual automatically.
+For inline rendering, follow the environment's guidance (visualize when available) and copy [assets/accomplishments.html](assets/accomplishments.html) to the task's visualization location. Populate `shutdown-accomplishments-data` JSON: local `date`, `timeZone`, and `items` with unique `id` and `label`. Escape `<` as `\u003c`. The chooser supports additions and "None of these."
 
-### Multiple selection
+Only **Continue** submits through `window.openai.sendFollowUpMessage`; wait for that message. Preserve selections on failure. Without native multi-select or inline rendering, explain briefly and confirm candidates individually with yes/no questions.
 
-Use a native multi-select only when its actual tool schema supports it. The single-choice `request_user_input_async` schema has no multi-select parameter; do not invent one or ask the user to type candidate numbers as the standard interaction.
+## Estimate and fit the plan
 
-When inline interactive rendering is available, use [assets/accomplishments.html](assets/accomplishments.html) for the opening question. Follow the environment's rendering guidance, such as the visualize skill when available. Copy the fragment to the task's visualization location and populate only its `shutdown-accomplishments-data` JSON with the current local `date`, `timeZone`, and verified `items` (`id`, `label`). Give items unique IDs and serialize JSON safely, escaping `<` as `\u003c`. The template renders labels as text, permits several checkboxes, accepts additions, and offers "None of these."
+Clarify scope before estimating. Ask the user's initial estimate and comparable experience; probe uncertainty and confirm revisions. Include preparation, review, and transitions. Separate effort from external waiting. For unknown scope, a discovery timebox can be the next step while completion remains unknown.
 
-Selection changes are drafts. Only **Continue** submits all choices and additions to chat with `window.openai.sendFollowUpMessage`; do not advance based on saved display state. Wait for that explicit submitted answer before asking about unfinished work. If the form cannot submit, retain the selections and acknowledge the limitation instead of treating them as confirmed.
+Sum lower and upper estimates separately; add buffer once and exclude deferrals. Compare the upper total with available time. Plans fitting only the lower estimate are tentative. Resolve overflow with one choice to defer, reduce scope, or revise estimates; disclose unresolved overflow or assumptions in an immediate recap.
 
-If neither native multi-select nor interactive rendering is available, briefly explain the limitation and confirm candidates one by one with yes/no questions, collecting multiple accepted items across turns. Keep the remaining ritual one question at a time.
+## Final output
 
-### Sequence
+Use confirmed answers. Return two populated Markdown tables with short emoji labels, then one closing sentence. Put caveats inside table cells.
 
-Track the current stage and known answers in the conversation. Advance after the user answers, explicitly skips, or has already supplied the answer during this ritual. Today's accessible chat history is the default input for opening suggestions; use other activity sources only when requested. A task completed in this chat does not substitute for asking about the user's whole day.
+| Table | Required columns and content |
+|---|---|
+| ✨ Your day & plans | Period · Task/result · Status/next step · Time estimate. Cover completed and unfinished work, deferrals, tomorrow's tasks and first step, and tonight's choices. |
+| ⏳ Your time budget | Period · Task total · Buffer/free time · Planned/available · Spare or overflow. Include tomorrow and tonight, with ranges and uncertainty visible. |
 
-1. **Completed today.** After the history review, ask only about completed work, offering grounded candidates when available. Wait for the user's confirmation, corrections, or additions before discussing unfinished work.
-2. **Left unfinished.** Ask only: "🧺 What work is still unfinished?" Capture the loose ends, then wait before planning.
-3. **Tomorrow.** First ask what they want to prioritize tomorrow. After their reply, clarify one selected task's finish line. In a later turn, ask for its time estimate. Follow up on a specific uncertainty only when needed; confirm a proposed revision before treating it as agreed. Repeat for other selected tasks. Ask about tomorrow's available work time separately if unknown.
-4. **Tonight.** First ask about available evening time if unknown. Ask about energy, activity choice, and activity duration in separate later turns as needed. Rest is a valid choice. Keep deliberate unplanned time. If the plan is crowded, ask the user to choose a deferral, scope reduction, or revised estimate.
-5. **Close.** Produce the recap once both periods have enough information for a useful time budget, or the user requests it. A request to "finish now" ends questioning; summarize known facts and label missing estimates or assumptions.
+Use "Unknown" for missing estimates and "Not recorded" for unmeasured past durations. Check arithmetic: tasks 50–70 min + buffer 20 min = 70–90 of 120 min, leaving 30–50 min.
 
-If the user requests a shorter ritual or is tired, reduce follow-ups while keeping one question per turn. Mark skipped details as unknown.
+Suggested close: "🌙 Shutdown complete. Your evening is yours." Then stop.
 
-### Estimation and capacity
-
-Use the user's initial estimate and evidence, such as similar past work. Resolve vague scope before accepting a completion estimate; a discovery timebox may be the next step while completion remains unknown. Include preparation, review, and transitions when relevant. Separate active effort from external waiting time, which may prevent promising a finish time.
-
-Sum lower and upper task estimates separately and add explicit buffer once. Compare the upper total with available time. Plans fitting only the lower total are tentative. Resolve overflow through one focused choice before presenting a committed plan; if the user requests an immediate recap, identify the overflow clearly.
-
-## Final recap
-
-Present the final recap as **formatted Markdown tables**, followed by one short closure sentence. Use confirmed answers; draft checkbox selections are not confirmed work. The tables are the output, rather than paragraphs or a bullet list repeating their contents.
-
-Give each table a short, friendly label with one emoji, such as **✨ Your day & plans** and **⏳ Your time budget**. Close with a gentle line such as "🌙 Shutdown complete. Your evening is yours."
-
-- **Work and activities table:** columns for period, task or result, status or next step, and time estimate. Include today's completed and unfinished work, tomorrow's selected tasks and first step, tonight's choices, and deferrals. Mark missing estimates as "Unknown" and past durations that were not recorded as "Not recorded." Keep uncertain ranges and external waiting time visible.
-- **Time budget table:** one row each for tomorrow and tonight, with task total, buffer or protected free time, planned total versus available time, and spare time or overflow. Exclude deferred tasks from planned totals. Calculate both range endpoints and include buffer once.
-
-Example with all inputs already supplied and confirmed:
-
-**✨ Your day & plans**
-
-| Period | Task or result | Status / next step | Time estimate |
-|---|---|---|---|
-| Today | Report draft | Completed | Not recorded |
-| Today | Check numbers | Unfinished; deferred | 20–40 min |
-| Tomorrow | Revise draft | First step: open draft and mark revisions | 40–60 min |
-| Tomorrow | Send report | After revision | 10 min |
-| Tonight | Walk | Chosen | 20 min |
-| Tonight | Read | Chosen; duration uncertain | 15–25 min |
-
-**⏳ Your time budget**
-
-| Period | Task total | Buffer / free time | Planned / available | Spare |
-|---|---|---|---|---|
-| Tomorrow | 50–70 min | 20 min buffer | 70–90 / 120 min | 30–50 min |
-| Tonight | 35–45 min | 15 min protected free time | 50–60 / 60 min | 0–10 min |
-
-🌙 Shutdown complete. Your evening is yours.
-
-After the recap, stop prompting for more work.
-
-Keep the plan in chat; saving it or acting in other apps requires a request.
-
-Adapts [Cal Newport's shutdown ritual](https://calnewport.com/drastically-reduce-stress-with-a-work-shutdown-ritual/) with collaborative estimation and evening planning.
+Inspired by [Cal Newport's shutdown ritual](https://calnewport.com/drastically-reduce-stress-with-a-work-shutdown-ritual/), extended with collaborative estimation and evening planning.
