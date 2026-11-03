@@ -12,7 +12,7 @@ Once installed, invoke the skill in a new chat:
 Use $shutdown-ritual to help me close my workday.
 ```
 
-Bring whatever you already know about today's progress, tomorrow's priorities, and tonight's free time. The skill asks focused follow-up questions to fill important gaps.
+Bring whatever you already know about today's progress, tomorrow's priorities, and tonight's free time. The skill uses interactive question cards, one at a time, with suggested choices when useful and room for your own answers. In environments without question cards, it asks the same questions in chat.
 
 ## Install
 
